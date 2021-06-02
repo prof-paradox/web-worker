@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  	<meta charset = "utf-8">
+	<title>HTML5 - L3 Topgear</title>
+	<link rel = "icon" href = 
+		"https://thumbor.forbes.com/thumbor/416x416/filters%3Aformat%28jpg%29/https%3A%2F%2Fspecials-images.forbesimg.com%2Fimageserve%2F593049db4bbe6f1b730b04f7%2F0x0.jpg%3Fbackground%3D000000%26cropX1%3D0%26cropX2%3D416%26cropY1%3D0%26cropY2%3D416" 
+		type = "image/x-icon"> 
+</head>
+
+<body>
+  <p>Make sure to host this project to a live server otherwise your browser will not pick up the worker file.</p>
+  <h1>Web Storage</h1>
+  <div id = "storage"></div>
+  <h1>Web Worker</h1>
+  <h4>Click on the "Start" button below to start the web worker and click on the "End" button to stop it.</h4>
+  <button onclick = "workerStart()">Start</button>
+  <button onclick = "workerEnd()">End</button>
+  <br/><br/>
+  <p id = "worker"></p>
+  
+  
+  <script>
+  
+    // Taking input from the user
+    var n = prompt("Enter a number : ");
+    n = parseInt(n);
+    
+    // Storing the user input in session storage
+    if(typeof(Storage) !== "undefined"){
+	if(!isNaN(n)){
+    		sessionStorage.setItem("userinput", n);
+	}
+	else{
+		sessionStorage.setItem("userinput", "You did not provide a numerical input. Reset the page to re enter the input...");
+	}
+    	
+    	// Fetching user input from session storage
+    	document.getElementById("storage").innerHTML = "Your input was : " + "<b>" + sessionStorage.getItem("userinput") + "</b>";
+    
+    }
+    else{
+    	document.getElementById("storage").innerHTML = "Sorry! Your browser does not support Webstorage..."
+    }
+    
+    // Starting Web Worker
+	var w;
+    function workerStart(){
+    	var w;
+    	if(typeof(Worker) !== "undefined"){
+    		if(typeof(w) === "undefined"){
+    			w = new Worker("./worker.js");  // "worker.js" file should be kept in the same folder as the parent HTML file or else use the absolute path.
+    			w.postMessage(sessionStorage.getItem("userinput"));
+			}	
+			w.onmessage = function(event){
+				var reply = parseInt(event.data);
+				if(!isNaN(reply)){
+					document.getElementById("worker").innerHTML = reply;
+					reply += 1;
+					w.postMessage(reply);
+				}
+				else if(isNaN(reply)){
+					document.getElementById("worker").innerHTML = reply;
+				}
+			};
+    	}
+    	else{
+    	document.getElementById("worker").innerHTML = "Sorry! Your browser does not support Web Workers.";
+    	}
+    }
+    
+    // Stopping Web Worker
+    function workerEnd(){
+    	 w.terminate();
+ 	 w = undefined;
+    }
+  </script>
+</body>
+  
+</html>
